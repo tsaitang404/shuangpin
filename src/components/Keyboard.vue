@@ -17,7 +17,10 @@ const pressingKeys = ref(new Set<string>());
 const keySeq = ref<string[]>([]);
 const scale = ref(1);
 
-const onPressKey = (e: KeyboardEvent) => pressKey(e.key);
+const onPressKey = (e: KeyboardEvent) => {
+  if (e.key === " ") e.preventDefault();
+  pressKey(e.key);
+};
 const onReleaseKey = (e: KeyboardEvent) => releaseKey(e.key);
 
 onActivated(() => {
