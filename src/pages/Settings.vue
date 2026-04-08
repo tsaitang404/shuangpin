@@ -39,6 +39,7 @@ const settingOptions: {
   enableAutoClear: buildBooleanOption("自动清空"),
   enableKeyHint: buildBooleanOption("键位提示"),
   enablePinyinHint: buildBooleanOption("拼音提示"),
+  enableSymbolInput: buildBooleanOption("输入符号"),
   theme: {
     options: [
       { option: "auto", name: "自动" },

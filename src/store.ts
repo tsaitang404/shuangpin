@@ -23,6 +23,7 @@ export const useStore = defineStore("app", {
         enableAutoClear: true,
         enableKeyHint: true,
         enablePinyinHint: true,
+        enableSymbolInput: false,
         theme: "auto",
         shuangpinMode: "小鹤双拼",
       },

@@ -31,12 +31,42 @@ function onKeyPressed() {
   summary.value.onKeyPressed();
 }
 
+const symbolMap: Record<string, string> = {
+  "\u3002": ".", "\u3001": ",", "\u300A": "<", "\u300B": ">",
+  "\u300C": "[", "\u300D": "]", "\u300E": "[", "\u300F": "]",
+  "\u3010": "[", "\u3011": "]", "\u2014": "-", "\u2013": "-",
+  "\u2026": ".", "\u201C": '"', "\u201D": '"', "\u2018": "'", "\u2019": "'",
+  "\u00B7": "`", "\uFF5E": "~",
+};
+
+function normalizeSymbol(char: string): string {
+  const code = char.charCodeAt(0);
+  if (code >= 0xFF01 && code <= 0xFF5E) {
+    return String.fromCharCode(code - 0xFEE0);
+  }
+  return symbolMap[char] ?? char;
+}
+
+function onSymbolKey(e: KeyboardEvent) {
+  if (!settings.value.enableSymbolInput) return;
+  const current = article.value.currentHanzi;
+  if (hanziMap.h2p.has(current)) return;
+  if (current === "\n") {
+    if (e.key !== "Enter") return;
+  } else {
+    if (normalizeSymbol(current) !== e.key) return;
+  }
+  article.value.progress.currentIndex += 1;
+}
+
 onActivated(() => {
   document.addEventListener("keypress", onKeyPressed);
+  document.addEventListener("keydown", onSymbolKey);
 });
 
 onDeactivated(() => {
   document.removeEventListener("keypress", onKeyPressed);
+  document.removeEventListener("keydown", onSymbolKey);
 });
 
 (function checkArticles() {
@@ -79,6 +109,7 @@ function loadArticleText(article: Article) {
 }
 
 function jumpToNextValidHanzi(index: number, text: string) {
+  if (settings.value.enableSymbolInput) return index;
   while (index < text.length && !hanziMap.h2p.has(text[index])) {
     index += 1;
   }
@@ -105,6 +136,9 @@ const article = computed(() => {
   for (let i = 0; i < info.text.length; ++i) {
     const char = info.text[i];
     if (char === "\n") {
+      if (settings.value.enableSymbolInput) {
+        text.at(-1)?.push(["\u21b5", i - info.progress.currentIndex]);
+      }
       text.push([]);
     } else {
       text.at(-1)?.push([char, i - info.progress.currentIndex]);
