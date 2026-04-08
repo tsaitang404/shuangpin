@@ -59,14 +59,22 @@ function onSymbolKey(e: KeyboardEvent) {
   article.value.progress.currentIndex += 1;
 }
 
+function onTabKey(e: KeyboardEvent) {
+  if (e.key !== "Tab") return;
+  e.preventDefault();
+  resetArticle();
+}
+
 onActivated(() => {
   document.addEventListener("keypress", onKeyPressed);
   document.addEventListener("keydown", onSymbolKey);
+  document.addEventListener("keydown", onTabKey);
 });
 
 onDeactivated(() => {
   document.removeEventListener("keypress", onKeyPressed);
   document.removeEventListener("keydown", onSymbolKey);
+  document.removeEventListener("keydown", onTabKey);
 });
 
 (function checkArticles() {
@@ -182,6 +190,18 @@ function onAriticleChange(i: number) {
 
 const pinyin = ref<string[]>([]);
 const isValidPinyin = ref(false);
+const resetHint = ref(false);
+
+function resetArticle() {
+  article.value.progress.currentIndex = 0;
+  article.value.progress.correctTry = 0;
+  article.value.progress.totalTry = 0;
+  summary.value = new TypingSummary();
+  pinyin.value = [];
+  isValidPinyin.value = false;
+  resetHint.value = true;
+  setTimeout(() => { resetHint.value = false; }, 1500);
+}
 
 function onSeq([lead, follow]: [string?, string?]) {
   for (const answer of article.value.answer) {
@@ -368,12 +388,17 @@ function shortPinyin(pinyins: string[]) {
 
     <Keyboard v-if="!isEditing" :valid-seq="onSeq" :hints="article.spHints" />
 
+    <Transition name="fade">
+      <div v-if="resetHint" class="reset-hint">已重置</div>
+    </Transition>
+
     <div v-if="!isEditing" class="summary">
       <TypeSummary
         :speed="summary.hanziPerMinutes"
         :accuracy="summary.accuracy"
         :avgpress="summary.pressPerHanzi"
       />
+      <div class="tab-hint">按 Tab 键重置进度和统计数据</div>
     </div>
   </div>
 </template>
@@ -627,6 +652,39 @@ function shortPinyin(pinyins: string[]) {
     @media (max-width: 576px) {
       top: 36px;
     }
+
+    .tab-hint {
+      font-size: 11px;
+      opacity: 0.3;
+      text-align: right;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
   }
+
+  .reset-hint {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--black);
+    color: var(--white);
+    padding: 8px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    pointer-events: none;
+    opacity: 0.75;
+    z-index: 9999;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
