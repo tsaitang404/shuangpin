@@ -3,10 +3,14 @@ const fs = require("fs");
 
 function convert() {
   const tasks = {
-    popular: fs
-      .readFileSync("./hanzi/3500.txt", "utf8")
+    popular: [
+      fs.readFileSync("./hanzi/3500.txt", "utf8"),
+      fs.readFileSync("./hanzi/7000.txt", "utf8"),
+    ]
+      .join("\n")
       .split(/\s/)
-      .filter((v) => v.length > 0),
+      .filter((v) => v.length > 0)
+      .filter((v, i, arr) => arr.indexOf(v) === i), // 去重
   };
 
   const result = {};
