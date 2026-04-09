@@ -32,7 +32,7 @@ function onKeyPressed() {
 }
 
 const symbolMap: Record<string, string> = {
-  "\u3002": ".", "\u3001": ",", "\u300A": "<", "\u300B": ">",
+  "\u3002": ".", "\u3001": "\\", "\u300A": "<", "\u300B": ">",
   "\u300C": "[", "\u300D": "]", "\u300E": "[", "\u300F": "]",
   "\u3010": "[", "\u3011": "]", "\u2014": "-", "\u2013": "-",
   "\u2026": ".", "\u201C": '"', "\u201D": '"', "\u2018": "'", "\u2019": "'",
@@ -138,6 +138,9 @@ const article = computed(() => {
 
   const currentHanzi = info.text[info.progress.currentIndex] ?? "";
   const pinyin = getPinyinOf(currentHanzi);
+  const symbolKey = (!hanziMap.h2p.has(currentHanzi) && currentHanzi !== "" && currentHanzi !== "\n")
+    ? normalizeSymbol(currentHanzi)
+    : currentHanzi === "\n" ? "Enter" : "";
 
   // 分段
   let text: [[string, number][]] = [[]];
@@ -157,7 +160,7 @@ const article = computed(() => {
     type: info.type,
     text,
     currentHanzi,
-    answer: [...new Set(pinyin)],
+    answer: pinyin.length > 0 ? [...new Set(pinyin)] : (symbolKey ? [symbolKey] : []),
     spHints: (store.mode().py2sp.get(pinyin.at(0) ?? "") ?? "").split(""),
     progress: info.progress,
     name: info.name,
