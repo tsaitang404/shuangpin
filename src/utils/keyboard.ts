@@ -74,7 +74,9 @@ export class ShuangpinConfig {
         const pinyin = l + f;
         if (validCombines.has(pinyin)) {
           this.py2sp.set(pinyin, sp);
-          this.sp2py.set(sp, pinyin);
+          if (!this.sp2py.has(sp)) {
+            this.sp2py.set(sp, pinyin);
+          }
         }
       }
     }
