@@ -16,7 +16,7 @@ import { storeToRefs } from "pinia";
 
 import rawArticles from "../utils/article.json";
 import { computed } from "vue";
-import { getPinyinOf, hanziMap } from "../utils/hanzi";
+import { getPinyinOf, extendedHanziMap as hanziMap } from "../utils/hanzi";
 import { matchSpToPinyin } from "../utils/keyboard";
 import { TypingSummary } from "../utils/summary";
 import MenuList from "../components/MenuList.vue";

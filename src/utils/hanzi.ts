@@ -21,11 +21,15 @@ function buildTable({ pinyin, hanzi }: HanziLib) {
   return { h2p, p2h };
 }
 
+// 随机/声母/韵母模式：常用 3500 字
 export const hanziMap = buildTable(hanziTable.popular);
 export const hanziList = hanziTable.popular;
 
+// 长句模式：全部 7000 字
+export const extendedHanziMap = buildTable(hanziTable.extended as HanziLib);
+
 export function getPinyinOf(hanzi: string) {
-  return hanziMap.h2p.get(hanzi) ?? [];
+  return extendedHanziMap.h2p.get(hanzi) ?? [];
 }
 
 export function getHanziOf(pinyin: string) {
