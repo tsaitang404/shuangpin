@@ -10,7 +10,8 @@ function convert() {
       .join("\n")
       .split(/\s/)
       .filter((v) => v.length > 0)
-      .filter((v, i, arr) => arr.indexOf(v) === i), // 去重
+      .filter((v, i, arr) => arr.indexOf(v) === i) // 去重
+      .slice(0, 5000), // 取前 5000（3500 核心 + 7000 补充）
   };
 
   const result = {};
