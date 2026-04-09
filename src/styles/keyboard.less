@@ -14,19 +14,19 @@
   user-select: none;
 
   .key-item {
-    margin: 5px;
+    margin: 3px;
     background-color: var(--gray-001);
     border-radius: 5px;
     box-shadow: 0 1px 2px var(--gray-010);
     text-align: center;
-    padding: 10px;
+    padding: 6px;
 
     height: 40px;
-    width: 45px;
+    width: 42px;
 
     @media (max-width: 576px) {
-      margin: 5px 3px;
-      height: 60px;
+      margin: 2px;
+      height: 48px;
     }
 
     display: flex;
@@ -34,6 +34,8 @@
     justify-content: space-between;
     backdrop-filter: blur(5px);
     border: 1px solid var(--gray-001);
+    cursor: pointer;
+    box-sizing: border-box;
 
     &.hint-key {
       border: 1px solid @primary-color;
@@ -49,21 +51,21 @@
       align-items: center;
 
       .main-key {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: bold;
 
         @media (max-width: 576px) {
-          font-size: 18px;
+          font-size: 15px;
         }
       }
 
       .lead-key {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: bold;
         color: @primary-color;
 
         @media (max-width: 576px) {
-          font-size: 16px;
+          font-size: 13px;
         }
       }
     }
@@ -73,14 +75,36 @@
       justify-content: center;
 
       .follow-key {
-        font-size: 12px;
-        margin-right: 3px;
+        font-size: 11px;
+        margin-right: 2px;
       }
     }
   }
 
-  .backspace {
+  // Symbol / number keys: no annotation layout, centered text
+  .sym-key {
+    display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
   }
+
+  // Special keys (wider, centered)
+  .special-key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--black);
+  }
+
+  .tab-key   { width: 64px; }
+  .caps-key  { width: 74px; }
+  .enter-key { width: 88px; }
+  .backspace { width: 64px; font-size: 16px; }
+  .shift-key { width: 88px; }
+  .shift-right { width: 108px; }
+  .space-key { width: 320px; }
 }

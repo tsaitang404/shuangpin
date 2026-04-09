@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watchPostEffect } from "vue";
+import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { ref, onActivated, onDeactivated } from "vue";
 import { useStore } from "../store";
@@ -27,7 +27,6 @@ onActivated(() => {
   document.addEventListener("keydown", onPressKey);
   document.addEventListener("keyup", onReleaseKey);
   window.addEventListener("resize", resizeKeyboard);
-
   resizeKeyboard();
 });
 
@@ -45,7 +44,6 @@ function resizeKeyboard() {
 
 function pressKey(key: string) {
   pressingKeys.value.add(key);
-
   navigator.vibrate(100);
 }
 
@@ -82,89 +80,212 @@ function releaseKey(key: string, shouldSend = true) {
   send();
 }
 
-const keyLayout = computed(() => {
-  return mapConfigToLayout(store.mode());
+const keyLayout = computed(() => mapConfigToLayout(store.mode()));
+
+const spMap = computed(() => {
+  const m = new Map<string, { lead: string; follow: string }>();
+  for (const row of keyLayout.value) {
+    for (const item of row) {
+      m.set(item.main, { lead: item.lead, follow: item.follow });
+    }
+  }
+  return m;
 });
 
 function keyItemClass(key: string) {
-  let classNames = [];
-
-  if (pressingKeys.value.has(key)) {
-    classNames.push("pressing");
-  }
-
-  if (props.hints?.includes(key) && settings.value.enableKeyHint) {
-    classNames.push("hint-key");
-  }
-
-  return classNames.join(" ");
+  const cls: string[] = [];
+  if (pressingKeys.value.has(key)) cls.push("pressing");
+  if (props.hints?.includes(key) && settings.value.enableKeyHint) cls.push("hint-key");
+  return cls.join(" ");
 }
+
+const numRowKeys = ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="];
+const qRowLetters = "qwertyuiop".split("");
+const qRowExtra = ["[", "]", "\\"];
+const aRowLetters = "asdfghjkl;".split("");
+const zRowLetters = "zxcvbnm".split("");
+const zRowExtra = [",", ".", "/"];
 </script>
 
 <template>
   <div class="keyboard" :style="`transform: scale(${scale})`" id="keyboard">
-    <div v-for="(line, li) in keyLayout" :key="li" class="key-row">
+    <!-- Number row -->
+    <div class="key-row">
       <div
-        v-for="(keyItem, ki) in line"
-        :key="ki"
-        class="key-item"
-        :class="keyItemClass(keyItem.main)"
-        @mousedown="pressKey(keyItem.main)"
-        @touchstart.stop.prevent="pressKey(keyItem.main)"
-        @mouseup="releaseKey(keyItem.main)"
-        @mouseout="releaseKey(keyItem.main, false)"
-        @touchend.stop.prevent="releaseKey(keyItem.main)"
-      >
-        <div class="main-content">
-          <div class="main-key">
-            {{ keyItem.main.toUpperCase() }}
-          </div>
-          <div v-if="keyItem.lead.length > 0" class="lead-key">
-            {{ keyItem.lead }}
-          </div>
-        </div>
-        <div class="bottom-content">
-          <div class="follow-key">
-            {{ keyItem.follow }}
-          </div>
-        </div>
-      </div>
-
+        v-for="k in numRowKeys" :key="k"
+        class="key-item sym-key"
+        :class="keyItemClass(k)"
+        @mousedown="pressKey(k)"
+        @touchstart.stop.prevent="pressKey(k)"
+        @mouseup="releaseKey(k)"
+        @mouseout="releaseKey(k, false)"
+        @touchend.stop.prevent="releaseKey(k)"
+      >{{ k }}</div>
       <div
-        v-if="li === keyLayout.length - 1"
-        class="key-item backspace"
+        class="key-item special-key backspace"
         :class="keyItemClass('Backspace')"
         @mousedown="pressKey('Backspace')"
         @touchstart.stop.prevent="pressKey('Backspace')"
         @mouseup="releaseKey('Backspace')"
         @mouseout="releaseKey('Backspace', false)"
         @touchend.stop.prevent="releaseKey('Backspace')"
+      >&#x232B;</div>
+    </div>
+
+    <!-- Q row -->
+    <div class="key-row">
+      <div
+        class="key-item special-key tab-key"
+        :class="keyItemClass('Tab')"
+        @mousedown="pressKey('Tab')"
+        @touchstart.stop.prevent="pressKey('Tab')"
+        @mouseup="releaseKey('Tab')"
+        @mouseout="releaseKey('Tab', false)"
+        @touchend.stop.prevent="releaseKey('Tab')"
+      >Tab</div>
+      <div
+        v-for="k in qRowLetters" :key="k"
+        class="key-item letter-key"
+        :class="keyItemClass(k)"
+        @mousedown="pressKey(k)"
+        @touchstart.stop.prevent="pressKey(k)"
+        @mouseup="releaseKey(k)"
+        @mouseout="releaseKey(k, false)"
+        @touchend.stop.prevent="releaseKey(k)"
       >
-        <svg width="16" height="16" viewBox="0 0 48 48" fill="none">
-          <path
-            d="M14 11L4 24L14 37H44V11H14Z"
-            fill="none"
-            stroke="#333"
-            stroke-width="3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M21 19L31 29"
-            stroke="#333"
-            stroke-width="3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M31 19L21 29"
-            stroke="#333"
-            stroke-width="3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <div class="main-content">
+          <div class="main-key">{{ k.toUpperCase() }}</div>
+          <div v-if="spMap.get(k)?.lead" class="lead-key">{{ spMap.get(k)?.lead }}</div>
+        </div>
+        <div class="bottom-content">
+          <div class="follow-key">{{ spMap.get(k)?.follow }}</div>
+        </div>
       </div>
+      <div
+        v-for="k in qRowExtra" :key="k"
+        class="key-item sym-key"
+        :class="keyItemClass(k)"
+        @mousedown="pressKey(k)"
+        @touchstart.stop.prevent="pressKey(k)"
+        @mouseup="releaseKey(k)"
+        @mouseout="releaseKey(k, false)"
+        @touchend.stop.prevent="releaseKey(k)"
+      >{{ k }}</div>
+    </div>
+
+    <!-- A row -->
+    <div class="key-row">
+      <div
+        class="key-item special-key caps-key"
+        :class="keyItemClass('CapsLock')"
+        @mousedown="pressKey('CapsLock')"
+        @touchstart.stop.prevent="pressKey('CapsLock')"
+        @mouseup="releaseKey('CapsLock')"
+        @mouseout="releaseKey('CapsLock', false)"
+        @touchend.stop.prevent="releaseKey('CapsLock')"
+      >Caps</div>
+      <div
+        v-for="k in aRowLetters" :key="k"
+        class="key-item"
+        :class="[/^[a-z]$/.test(k) ? 'letter-key' : 'sym-key', keyItemClass(k)]"
+        @mousedown="pressKey(k)"
+        @touchstart.stop.prevent="pressKey(k)"
+        @mouseup="releaseKey(k)"
+        @mouseout="releaseKey(k, false)"
+        @touchend.stop.prevent="releaseKey(k)"
+      >
+        <template v-if="/^[a-z]$/.test(k)">
+          <div class="main-content">
+            <div class="main-key">{{ k.toUpperCase() }}</div>
+            <div v-if="spMap.get(k)?.lead" class="lead-key">{{ spMap.get(k)?.lead }}</div>
+          </div>
+          <div class="bottom-content">
+            <div class="follow-key">{{ spMap.get(k)?.follow }}</div>
+          </div>
+        </template>
+        <template v-else>{{ k }}</template>
+      </div>
+      <div
+        class="key-item sym-key"
+        :class="keyItemClass(`'`)"
+        @mousedown="pressKey(`'`)"
+        @touchstart.stop.prevent="pressKey(`'`)"
+        @mouseup="releaseKey(`'`)"
+        @mouseout="releaseKey(`'`, false)"
+        @touchend.stop.prevent="releaseKey(`'`)"
+      >'</div>
+      <div
+        class="key-item special-key enter-key"
+        :class="keyItemClass('Enter')"
+        @mousedown="pressKey('Enter')"
+        @touchstart.stop.prevent="pressKey('Enter')"
+        @mouseup="releaseKey('Enter')"
+        @mouseout="releaseKey('Enter', false)"
+        @touchend.stop.prevent="releaseKey('Enter')"
+      >Enter</div>
+    </div>
+
+    <!-- Z row -->
+    <div class="key-row">
+      <div
+        class="key-item special-key shift-key"
+        :class="keyItemClass('Shift')"
+        @mousedown="pressKey('Shift')"
+        @touchstart.stop.prevent="pressKey('Shift')"
+        @mouseup="releaseKey('Shift')"
+        @mouseout="releaseKey('Shift', false)"
+        @touchend.stop.prevent="releaseKey('Shift')"
+      >Shift</div>
+      <div
+        v-for="k in zRowLetters" :key="k"
+        class="key-item letter-key"
+        :class="keyItemClass(k)"
+        @mousedown="pressKey(k)"
+        @touchstart.stop.prevent="pressKey(k)"
+        @mouseup="releaseKey(k)"
+        @mouseout="releaseKey(k, false)"
+        @touchend.stop.prevent="releaseKey(k)"
+      >
+        <div class="main-content">
+          <div class="main-key">{{ k.toUpperCase() }}</div>
+          <div v-if="spMap.get(k)?.lead" class="lead-key">{{ spMap.get(k)?.lead }}</div>
+        </div>
+        <div class="bottom-content">
+          <div class="follow-key">{{ spMap.get(k)?.follow }}</div>
+        </div>
+      </div>
+      <div
+        v-for="k in zRowExtra" :key="k"
+        class="key-item sym-key"
+        :class="keyItemClass(k)"
+        @mousedown="pressKey(k)"
+        @touchstart.stop.prevent="pressKey(k)"
+        @mouseup="releaseKey(k)"
+        @mouseout="releaseKey(k, false)"
+        @touchend.stop.prevent="releaseKey(k)"
+      >{{ k }}</div>
+      <div
+        class="key-item special-key shift-key shift-right"
+        :class="keyItemClass('Shift')"
+        @mousedown="pressKey('Shift')"
+        @touchstart.stop.prevent="pressKey('Shift')"
+        @mouseup="releaseKey('Shift')"
+        @mouseout="releaseKey('Shift', false)"
+        @touchend.stop.prevent="releaseKey('Shift')"
+      >Shift</div>
+    </div>
+
+    <!-- Space row -->
+    <div class="key-row">
+      <div
+        class="key-item special-key space-key"
+        :class="keyItemClass(' ')"
+        @mousedown="pressKey(' ')"
+        @touchstart.stop.prevent="pressKey(' ')"
+        @mouseup="releaseKey(' ')"
+        @mouseout="releaseKey(' ', false)"
+        @touchend.stop.prevent="releaseKey(' ')"
+      >Space</div>
     </div>
   </div>
 </template>
