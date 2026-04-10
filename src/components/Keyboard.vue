@@ -11,7 +11,10 @@ const settings = storeToRefs(store).settings;
 const props = defineProps<{
   hints?: string[];
   validSeq?: (_: [string?, string?]) => boolean;
-  onKeyClick?: (key: string) => void;
+}>();
+
+const emit = defineEmits<{
+  keyClick: [key: string];
 }>();
 
 const pressingKeys = ref(new Set<string>());
@@ -87,7 +90,7 @@ function releaseKey(key: string, shouldSend = true) {
   if (!shouldSend || !store.mode().groupByKey.has(key as Char)) {
     if (shouldSend) {
       const effectiveKey = shiftLocked.value && shiftMap[key] !== undefined ? shiftMap[key] : key;
-      props.onKeyClick?.(effectiveKey);
+      emit('keyClick', effectiveKey);
     }
     if (unlockShift) { shiftLocked.value = false; pressingKeys.value.delete("Shift"); }
     return;

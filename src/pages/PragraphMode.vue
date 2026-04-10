@@ -406,7 +406,7 @@ function shortPinyin(pinyins: string[]) {
       </div>
     </div>
 
-    <Keyboard v-if="!isEditing" :valid-seq="onSeq" :hints="article.spHints" :on-key-click="handleOnScreenKey" />
+    <Keyboard v-if="!isEditing" :valid-seq="onSeq" :hints="article.spHints" @key-click="handleOnScreenKey" />
 
     <Transition name="fade">
       <div v-if="resetHint" class="reset-hint">已重置</div>
