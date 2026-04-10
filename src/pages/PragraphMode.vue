@@ -59,6 +59,18 @@ function onSymbolKey(e: KeyboardEvent) {
   article.value.progress.currentIndex += 1;
 }
 
+function handleOnScreenKey(key: string) {
+  if (!settings.value.enableSymbolInput) return;
+  const current = article.value.currentHanzi;
+  if (hanziMap.h2p.has(current)) return;
+  if (current === "\n") {
+    if (key !== "Enter") return;
+  } else {
+    if (normalizeSymbol(current) !== key) return;
+  }
+  article.value.progress.currentIndex += 1;
+}
+
 function onTabKey(e: KeyboardEvent) {
   if (e.key !== "Tab") return;
   e.preventDefault();
@@ -394,7 +406,7 @@ function shortPinyin(pinyins: string[]) {
       </div>
     </div>
 
-    <Keyboard v-if="!isEditing" :valid-seq="onSeq" :hints="article.spHints" />
+    <Keyboard v-if="!isEditing" :valid-seq="onSeq" :hints="article.spHints" :on-key-click="handleOnScreenKey" />
 
     <Transition name="fade">
       <div v-if="resetHint" class="reset-hint">已重置</div>
