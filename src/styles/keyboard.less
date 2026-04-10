@@ -84,10 +84,23 @@
   // Symbol / number keys: no annotation layout, centered text
   .sym-key {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: bold;
+    justify-content: space-around;
+    padding: 4px 0;
+
+    .shift-char {
+      font-size: 10px;
+      font-weight: bold;
+      opacity: 0.55;
+      line-height: 1;
+    }
+
+    .base-char {
+      font-size: 13px;
+      font-weight: bold;
+      line-height: 1;
+    }
   }
 
   // Special keys (wider, centered)

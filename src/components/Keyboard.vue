@@ -105,6 +105,15 @@ const qRowExtra = ["[", "]", "\\"];
 const aRowLetters = "asdfghjkl;".split("");
 const zRowLetters = "zxcvbnm".split("");
 const zRowExtra = [",", ".", "/"];
+
+const shiftMap: Record<string, string> = {
+  "`": "~", "1": "!", "2": "@", "3": "#", "4": "$",
+  "5": "%", "6": "^", "7": "&", "8": "*", "9": "(",
+  "0": ")", "-": "_", "=": "+",
+  "[": "{", "]": "}", "\\": "|",
+  ";": ":", "'": '"',
+  ",": "<", ".": ">", "/": "?",
+};
 </script>
 
 <template>
@@ -120,7 +129,10 @@ const zRowExtra = [",", ".", "/"];
         @mouseup="releaseKey(k)"
         @mouseout="releaseKey(k, false)"
         @touchend.stop.prevent="releaseKey(k)"
-      >{{ k }}</div>
+      >
+        <span class="shift-char">{{ shiftMap[k] ?? '' }}</span>
+        <span class="base-char">{{ k }}</span>
+      </div>
       <div
         class="key-item special-key backspace"
         :class="keyItemClass('Backspace')"
@@ -170,7 +182,10 @@ const zRowExtra = [",", ".", "/"];
         @mouseup="releaseKey(k)"
         @mouseout="releaseKey(k, false)"
         @touchend.stop.prevent="releaseKey(k)"
-      >{{ k }}</div>
+      >
+        <span class="shift-char">{{ shiftMap[k] ?? '' }}</span>
+        <span class="base-char">{{ k }}</span>
+      </div>
     </div>
 
     <!-- A row -->
@@ -203,7 +218,10 @@ const zRowExtra = [",", ".", "/"];
             <div class="follow-key">{{ spMap.get(k)?.follow }}</div>
           </div>
         </template>
-        <template v-else>{{ k }}</template>
+        <template v-else>
+          <span class="shift-char">{{ shiftMap[k] ?? '' }}</span>
+          <span class="base-char">{{ k }}</span>
+        </template>
       </div>
       <div
         class="key-item sym-key"
@@ -213,7 +231,10 @@ const zRowExtra = [",", ".", "/"];
         @mouseup="releaseKey(`'`)"
         @mouseout="releaseKey(`'`, false)"
         @touchend.stop.prevent="releaseKey(`'`)"
-      >'</div>
+      >
+        <span class="shift-char">{{ shiftMap["'"] }}</span>
+        <span class="base-char">'</span>
+      </div>
       <div
         class="key-item special-key enter-key"
         :class="keyItemClass('Enter')"
@@ -263,7 +284,10 @@ const zRowExtra = [",", ".", "/"];
         @mouseup="releaseKey(k)"
         @mouseout="releaseKey(k, false)"
         @touchend.stop.prevent="releaseKey(k)"
-      >{{ k }}</div>
+      >
+        <span class="shift-char">{{ shiftMap[k] ?? '' }}</span>
+        <span class="base-char">{{ k }}</span>
+      </div>
       <div
         class="key-item special-key shift-key shift-right"
         :class="keyItemClass('Shift')"
