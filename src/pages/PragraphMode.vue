@@ -15,7 +15,7 @@ import { useStore } from "../store";
 import { storeToRefs } from "pinia";
 
 import rawArticles from "../utils/article.json";
-import { computed } from "vue";
+import { computed, nextTick } from "vue";
 import { getPinyinOf, extendedHanziMap as hanziMap } from "../utils/hanzi";
 import { matchSpToPinyin } from "../utils/keyboard";
 import { TypingSummary } from "../utils/summary";
@@ -195,6 +195,8 @@ const pinyin = ref<string[]>([]);
 const isValidPinyin = ref(false);
 const resetHint = ref(false);
 
+const scrollAreaRef = ref<HTMLElement | null>(null);
+
 function resetArticle() {
   article.value.progress.currentIndex = 0;
   article.value.progress.correctTry = 0;
@@ -204,6 +206,7 @@ function resetArticle() {
   isValidPinyin.value = false;
   resetHint.value = true;
   setTimeout(() => { resetHint.value = false; }, 1500);
+  nextTick(() => { if (scrollAreaRef.value) scrollAreaRef.value.scrollTop = 0; });
 }
 
 function onSeq([lead, follow]: [string?, string?]) {
@@ -352,7 +355,7 @@ function shortPinyin(pinyins: string[]) {
         </div>
       </div>
       <div v-if="!isEditing" class="text-area">
-        <div class="scroll-area">
+        <div class="scroll-area" ref="scrollAreaRef">
           <p v-for="(p, i) in article.text" :key="i">
             <span
               v-for="([s, t], si) in p"
