@@ -92,11 +92,28 @@ const spMap = computed(() => {
   return m;
 });
 
+const shiftMap: Record<string, string> = {
+  "`": "~", "1": "!", "2": "@", "3": "#", "4": "$",
+  "5": "%", "6": "^", "7": "&", "8": "*", "9": "(",
+  "0": ")", "-": "_", "=": "+",
+  "[": "{", "]": "}", "\\": "|",
+  ";": ":", "'": '"',
+  ",": "<", ".": ">", "/": "?",
+};
+
+const shiftSymbols = new Set(Object.values(shiftMap));
+
+function needsShift(hints: string[] | undefined): boolean {
+  return !!hints?.some(h => shiftSymbols.has(h));
+}
+
 function keyItemClass(key: string) {
   const cls: string[] = [];
   if (pressingKeys.value.has(key)) cls.push("pressing");
-  const hinted = props.hints?.includes(key) ||
-    (shiftMap[key] !== undefined && props.hints?.includes(shiftMap[key]));
+  const isShiftKey = key === "Shift";
+  const hinted = isShiftKey
+    ? needsShift(props.hints)
+    : props.hints?.includes(key) || (shiftMap[key] !== undefined && props.hints?.includes(shiftMap[key]));
   if (hinted && settings.value.enableKeyHint) cls.push("hint-key");
   return cls.join(" ");
 }
@@ -108,14 +125,6 @@ const aRowLetters = "asdfghjkl;".split("");
 const zRowLetters = "zxcvbnm".split("");
 const zRowExtra = [",", ".", "/"];
 
-const shiftMap: Record<string, string> = {
-  "`": "~", "1": "!", "2": "@", "3": "#", "4": "$",
-  "5": "%", "6": "^", "7": "&", "8": "*", "9": "(",
-  "0": ")", "-": "_", "=": "+",
-  "[": "{", "]": "}", "\\": "|",
-  ";": ":", "'": '"',
-  ",": "<", ".": ">", "/": "?",
-};
 </script>
 
 <template>
