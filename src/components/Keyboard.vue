@@ -95,7 +95,9 @@ const spMap = computed(() => {
 function keyItemClass(key: string) {
   const cls: string[] = [];
   if (pressingKeys.value.has(key)) cls.push("pressing");
-  if (props.hints?.includes(key) && settings.value.enableKeyHint) cls.push("hint-key");
+  const hinted = props.hints?.includes(key) ||
+    (shiftMap[key] !== undefined && props.hints?.includes(shiftMap[key]));
+  if (hinted && settings.value.enableKeyHint) cls.push("hint-key");
   return cls.join(" ");
 }
 
