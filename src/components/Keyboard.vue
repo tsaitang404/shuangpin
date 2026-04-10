@@ -42,9 +42,22 @@ function resizeKeyboard() {
   scale.value = screenWidth < 576 ? (screenWidth / keyboardWidth) * 1.1 : 1;
 }
 
+const shiftLocked = ref(false);
+
 function pressKey(key: string) {
   pressingKeys.value.add(key);
   navigator.vibrate(100);
+}
+
+function clickShift() {
+  navigator.vibrate(100);
+  if (shiftLocked.value) {
+    shiftLocked.value = false;
+    pressingKeys.value.delete("Shift");
+  } else {
+    shiftLocked.value = true;
+    pressingKeys.value.add("Shift");
+  }
 }
 
 function send() {
@@ -54,14 +67,24 @@ function send() {
 }
 
 function releaseKey(key: string, shouldSend = true) {
+  if (key === "Shift") {
+    // 物理键盘 Shift 松开时，仅在未锁定时移除
+    if (!shiftLocked.value) pressingKeys.value.delete("Shift");
+    return;
+  }
+
   pressingKeys.value.delete(key);
+  const unlockShift = shiftLocked.value;
 
   if (key === "Backspace") {
     keySeq.value.pop();
-    return send();
+    send();
+    if (unlockShift) { shiftLocked.value = false; pressingKeys.value.delete("Shift"); }
+    return;
   }
 
   if (!shouldSend || !store.mode().groupByKey.has(key as Char)) {
+    if (unlockShift) { shiftLocked.value = false; pressingKeys.value.delete("Shift"); }
     return;
   }
 
@@ -78,6 +101,7 @@ function releaseKey(key: string, shouldSend = true) {
   }
 
   send();
+  if (unlockShift) { shiftLocked.value = false; pressingKeys.value.delete("Shift"); }
 }
 
 const keyLayout = computed(() => mapConfigToLayout(store.mode()));
@@ -262,11 +286,8 @@ const zRowExtra = [",", ".", "/"];
       <div
         class="key-item special-key shift-key"
         :class="keyItemClass('Shift')"
-        @mousedown="pressKey('Shift')"
-        @touchstart.stop.prevent="pressKey('Shift')"
-        @mouseup="releaseKey('Shift')"
-        @mouseout="releaseKey('Shift', false)"
-        @touchend.stop.prevent="releaseKey('Shift')"
+        @mousedown.prevent="clickShift()"
+        @touchstart.stop.prevent="clickShift()"
       >Shift</div>
       <div
         v-for="k in zRowLetters" :key="k"
@@ -302,11 +323,8 @@ const zRowExtra = [",", ".", "/"];
       <div
         class="key-item special-key shift-key shift-right"
         :class="keyItemClass('Shift')"
-        @mousedown="pressKey('Shift')"
-        @touchstart.stop.prevent="pressKey('Shift')"
-        @mouseup="releaseKey('Shift')"
-        @mouseout="releaseKey('Shift', false)"
-        @touchend.stop.prevent="releaseKey('Shift')"
+        @mousedown.prevent="clickShift()"
+        @touchstart.stop.prevent="clickShift()"
       >Shift</div>
     </div>
 
