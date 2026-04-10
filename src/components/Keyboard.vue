@@ -90,7 +90,6 @@ function releaseKey(key: string, shouldSend = true) {
   if (!shouldSend || !store.mode().groupByKey.has(key as Char)) {
     if (shouldSend) {
       const effectiveKey = shiftLocked.value && shiftMap[key] !== undefined ? shiftMap[key] : key;
-      console.log('[Keyboard] emit keyClick:', effectiveKey, 'shiftLocked:', shiftLocked.value);
       emit('keyClick', effectiveKey);
     }
     if (unlockShift) { shiftLocked.value = false; pressingKeys.value.delete("Shift"); }

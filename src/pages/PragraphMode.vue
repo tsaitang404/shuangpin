@@ -60,7 +60,6 @@ function onSymbolKey(e: KeyboardEvent) {
 }
 
 function handleOnScreenKey(key: string) {
-  console.log('[PragraphMode] handleOnScreenKey:', key, 'current:', JSON.stringify(article.value.currentHanzi), 'normalized:', normalizeSymbol(article.value.currentHanzi), 'enableSymbol:', settings.value.enableSymbolInput);
   if (!settings.value.enableSymbolInput) return;
   const current = article.value.currentHanzi;
   if (hanziMap.h2p.has(current)) return;
@@ -69,7 +68,6 @@ function handleOnScreenKey(key: string) {
   } else {
     if (normalizeSymbol(current) !== key) return;
   }
-  console.log('[PragraphMode] advancing index from', article.value.progress.currentIndex);
   article.value.progress.currentIndex += 1;
 }
 
